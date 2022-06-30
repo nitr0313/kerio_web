@@ -5,6 +5,8 @@ import requests
 from django.conf import settings
 from dataclasses import dataclass
 
+from accounts.models import KerioGroup
+
 
 class KerioModuleAPI:
 
@@ -94,16 +96,16 @@ class KerioModuleAPI:
 
     def set_trusted_ip(self, user):
         method = "IpAddressGroups"
+
         params = {
             "groupIds": [
                 user.kerio_id
             ],
             "details": {
-                "groupId": "0JTQvtCy0LXRgNC10L3QvdGL0LUgSVAgZm9yIFJEUA==",
-                "groupName": "Доверенные IP for RDP",
+                "groupId": user.kerio_group.kerio_id,
+                "groupName": user.kerio_group.kerio_name,
                 "host": user.ipaddress,
                 "type": "Host",
-                # "description": "ins_sergey_home" if new_description is None else new_description,
                 "enabled": user.is_active
             }
         }
@@ -114,12 +116,13 @@ class KerioModuleAPI:
         return False
 
     def add_trusted_ip(self, ip, name):
+        group = KerioGroup.objects.first()
         method = "IpAddressGroups"
         params = {
             "groups": [
                 {
-                    "groupId": "0JTQvtCy0LXRgNC10L3QvdGL0LUgSVAgZm9yIFJEUA==",
-                    "groupName": "Доверенные IP for RDP",
+                    "groupId": group.kerio_id,
+                    "groupName": group.kerio_name,
                     "host": ip,
                     "type": "Host",
                     "description": name,
@@ -138,7 +141,7 @@ class KerioModuleAPI:
     def set_enable_or_disable_trusted_ids(self, ids, enabled=True):
         method = "IpAddressGroups"
         params = {"details": {"enabled": enabled}, "groupIds": ids}
-        result = self.send_request(method + '.set', params)
+        result = self.send_kerio_request(method + '.set', params)
         if result is not None:
             self.save_call([{'method': method + '.apply'}])
             return True
