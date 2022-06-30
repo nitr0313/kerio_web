@@ -34,13 +34,13 @@ class KerioModuleAPI:
             # os.environ.setdefault("TOKEN", None)
         if response.status_code == 200:
             return self.handle_request(response)
-        return False
+        return {}
 
     def request(self, url, data) -> dict:
         response = self.session.post(url, data)
         if response.status_code == 200:
             return self.handle_request(response)
-        return False
+        return {}
 
     @staticmethod
     def add_error(message, method=''):
@@ -82,10 +82,10 @@ class KerioModuleAPI:
         params = {"query": {"start": start, "limit": limit,
                             "orderBy": [{"columnName": "description", "direction": "Asc"}]}}
         answer = self.send_kerio_request(method, params)
+        if not answer:
+            return []
         ips = answer["list"]
         result = [user for user in ips if user['type'] == type_]
-        for user in result:
-            print("{:<5}{:<15}\t{:<14}\t{}".format(user['id'], user['description'], user['host'], user['enabled']))
         return result
 
     def set_disable_all_trusted_api(self):
