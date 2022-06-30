@@ -1,10 +1,7 @@
 python-version
 venv
 /docs/
-/market/db.sqlite3
-/requirements/
 /.idea/
-/postgres_data/
 .idea/
 
 # Byte-compiled / optimized / DLL files
