@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+{% load static %}
+{% load django_htmx %}
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %} {% endblock title %}</title>
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+    <script src=" {% static 'js/htmx.min.js' %} " defer></script>
+</head>
+{% block body %}
+    <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    {% block base_container %}
+        {% include 'includes/nav_bar.html' %}
+        <div class="container">
+            {% block content %}
+                <h1>Hello, world!</h1>
+            {% endblock content %}
+        </div>
+    {% endblock base_container %}
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    </body>
+{% endblock body %}
+</html>
