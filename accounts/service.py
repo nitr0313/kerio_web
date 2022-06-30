@@ -1,14 +1,12 @@
-import requests
 from django.contrib.auth.models import User
 from accounts.models import IPAddress
-# from .utils import KerioControlApi
 
 
 class KerioService:
     def __init__(self, user: User):
         self.user = user
 
-    def get_ip_from_db(self) -> IPAddress | None:
+    def get_ip_from_db(self) -> IPAddress:
         """
         Получить адрес из БД
         :return:
