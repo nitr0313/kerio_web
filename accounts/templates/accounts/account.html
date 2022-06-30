@@ -1,0 +1,35 @@
+{% extends '_base.html' %}
+
+{% load static i18n %}
+{% load django_htmx %}
+{% block title %}{% trans 'Profile' %}{% endblock %}
+
+
+{% block content %}
+    <div class="mt-5 row d-flex justify-content-center align-items-center h-100">
+        <div class="" style="text-align: center; font-weight: bold; font-size: x-large">
+            {% trans 'Hello' %}, {{ request.user|title }}!
+        </div>
+        <div class="" style="text-align: center; font-weight: bold; font-size: x-large">
+            {% trans 'Your current IP' %}: <span class="text-bg-success"> {{ current_ip }}</span>
+        </div>
+        <div class="mt-5" style="text-align: -webkit-center;">
+        <form method="post" style="width: 20rem">
+            {% csrf_token %}
+
+            <div class="input-group mb-4">
+                <div class="input-group-text">
+                    {{ form.is_active }}
+                </div>
+                {{ form.ipaddress }}
+                <div style="margin-left: 10px;" hx-get="{% url 'get_status_ip' pk=object.pk %}" hx-trigger="every 30s">
+                    {% include 'accounts/includes/rounded_bage.html' %}
+                </div>
+            </div>
+
+
+            <button type="submit" class="btn btn-primary">{% trans 'Save' %} </button>
+        </form>
+        </div>
+    </div>
+{% endblock content %}
