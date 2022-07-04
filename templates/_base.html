@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %} {% endblock title %}</title>
     <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
-    <script src=" {% static 'js/htmx.min.js' %} " defer></script>
+    <script src="{% static 'js/htmx.min.js' %}" defer></script>
 </head>
 {% block body %}
     <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
