@@ -76,7 +76,7 @@ USE_I18N = True
 USE_TZ = True
 
 DATABASES = {'default': env.db('DATABASE_URL')}
-public_root = BASE_DIR / 'public'
+public_root = env.str('PUBLIC_ROOT', default=BASE_DIR / 'public')
 MEDIA_ROOT = public_root / 'media'
 MEDIA_URL = env.str('MEDIA_URL', default='/media/')
 
