@@ -40,6 +40,7 @@ class KerioModuleAPI:
         response = self.session.post(url, data)
         if response.status_code == 200:
             return self.handle_request(response)
+        logger.error("{}".format(json.dumps(response.text)))
         return {}
 
     @staticmethod
