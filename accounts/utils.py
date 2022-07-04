@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 
 import requests
 from django.conf import settings
@@ -7,6 +8,9 @@ from dataclasses import dataclass
 
 from accounts.models import KerioGroup
 
+from django.conf import settings
+
+logger = logging.getLogger("main_logger")
 
 class KerioModuleAPI:
 
@@ -40,6 +44,7 @@ class KerioModuleAPI:
         response = self.session.post(url, data)
         if response.status_code == 200:
             return self.handle_request(response)
+        logger.error("{}".format(json.dumps(response.text)))
         return {}
 
     @staticmethod
