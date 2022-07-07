@@ -1,0 +1,30 @@
+{% extends '_base.html' %}
+
+{% load static i18n %}
+{% load django_htmx %}
+{% block title %}{% trans 'Profile' %}{% endblock %}
+
+
+{% block content %}
+    <h1> Connection status </h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Test title</th>
+            <th scope="col">Address</th>
+            <th scope="col">Result</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for stat in statuses %}
+            <tr class="table-{% if stat.status %}success{% else %}danger{% endif %}">
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ stat.title }} </td>
+                <td>{{ stat.address }}</td>
+                <td>{{ stat.result }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

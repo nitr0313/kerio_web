@@ -19,6 +19,7 @@ INSTALLED_APPS = [
 
 PROJECT_APPS = [
     'accounts',
+    'system_statuses'
 ]
 
 MIDDLEWARE = [
@@ -109,7 +110,7 @@ LOGGING = {
     'loggers': {
         'main_logger': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': True,
         },
     },
