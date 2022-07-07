@@ -11,7 +11,6 @@ from accounts.models import KerioGroup
 logger = logging.getLogger('main_logger')
 
 
-
 class KerioModuleAPI:
 
     def __init__(self):
