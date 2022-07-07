@@ -1,6 +1,6 @@
 import json
-import logging
 import os
+import logging
 
 import requests
 from django.conf import settings
@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from accounts.models import KerioGroup
 
 logger = logging.getLogger('main_logger')
+
 
 
 class KerioModuleAPI:
