@@ -68,7 +68,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 SECRET_KEY = env.str('SECRET_KEY')
 
 LANGUAGE_CODE = 'ru-RU'
@@ -77,11 +77,11 @@ USE_I18N = True
 USE_TZ = True
 
 DATABASES = {'default': env.db('DATABASE_URL')}
-public_root = Path(env.str('PUBLIC_ROOT', default=BASE_DIR / 'public'))
-MEDIA_ROOT = public_root / 'media'
+PUBLIC_ROOT = Path(env.str('PUBLIC_ROOT'), BASE_DIR / 'public')
+MEDIA_ROOT = PUBLIC_ROOT / 'media'
 MEDIA_URL = env.str('MEDIA_URL', default='/media/')
 
-STATIC_ROOT = public_root / 'static'
+STATIC_ROOT = PUBLIC_ROOT / 'static'
 STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
