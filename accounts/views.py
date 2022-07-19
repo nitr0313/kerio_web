@@ -49,6 +49,10 @@ class Profile(LoginRequiredMixin, View):
             object=instance,
             current_ip=current_ip
         )
+        if self.request.user.is_staff:
+            context.update({
+                'users_ip': IPAddress.objects.all()
+            })
         return context
 
 

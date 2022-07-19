@@ -26,10 +26,11 @@
                     {% include 'accounts/includes/rounded_bage.html' %}
                 </div>
             </div>
-
-
             <button type="submit" class="btn btn-primary">{% trans 'Save' %} </button>
         </form>
         </div>
+                {% if request.user.is_staff %}
+                {% include 'accounts/includes/users_ip_table.html' %}
+            {% endif %}
     </div>
 {% endblock content %}
