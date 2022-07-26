@@ -87,6 +87,10 @@ STATICFILES_DIRS = [
 ]
 STATIC_URL = env.str('STATIC_URL', default='static/')
 
+REDIS_HOST = env.str('REDIS_HOST', default='localhost')
+REDIS_PORT = env.int('REDIS_PORT', default=6379)
+REDIS_DB = env.int('REDIS_DB', default=0)
+
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
