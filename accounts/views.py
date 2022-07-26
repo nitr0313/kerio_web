@@ -72,5 +72,5 @@ class Logout(LogoutView):
 
 
 def sync_db(request):
-    sync_with_kerio_control()
+    sync_with_kerio_control.delay()
     return redirect('profile')
