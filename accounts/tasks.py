@@ -1,8 +1,11 @@
 from celery import shared_task
+from django.contrib.auth import get_user_model
 
 from accounts.models import IPAddress
 from accounts.utils import KerioModuleAPI
 
+
+User = get_user_model()
 
 @shared_task
 def sync_with_kerio_control():
@@ -20,3 +23,17 @@ def sync_with_kerio_control():
                 ip_object.in_kerio = True
                 results.append(ip_object)
     IPAddress.objects.bulk_update(results, fields=['ipaddress', 'is_active', 'in_kerio'])
+
+
+@shared_task
+def change_user_ip_in_kerio(user_id):
+    """
+    Отправка данных в kerio при изменении IP или активкности правила
+    """
+    kerio = KerioModuleAPI()
+    user = User.objects.get(id=user_id)
+    answer = kerio.set_trusted_ip(user=user.ip_address)
+    if 'errors' in answer and not answer['errors']:
+        user.in_kerio = True
+        user.save()
+        print(user)
