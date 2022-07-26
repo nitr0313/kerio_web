@@ -6,7 +6,7 @@ import requests
 from django.conf import settings
 from dataclasses import dataclass
 
-from accounts.models import KerioGroup
+from accounts.models import KerioGroup, IPAddress
 
 logger = logging.getLogger('main_logger')
 
@@ -30,7 +30,7 @@ class KerioModuleAPI:
         )
         response = self.session.post(url, json.dumps(data))
         if response.status_code == 401:
-            print("Не авторизован!")
+            # "Не авторизован!"
             self.token = None
             self.get_token()
             response = self.session.post(url, json.dumps(data))
@@ -48,7 +48,7 @@ class KerioModuleAPI:
         m = 'No specific method: '
         if method != '':
             m = "While running {}".format(method)
-        logger.error("{} {}".format(m, message))
+        print("{} {}".format(m, message))
 
     def handle_request(self, r):
         result = json.loads(r.text)
@@ -95,7 +95,7 @@ class KerioModuleAPI:
             for user in self.get_trusted_ips()]
         return all_ids
 
-    def set_trusted_ip(self, user):
+    def set_trusted_ip(self, user: IPAddress):
         method = "IpAddressGroups"
 
         params = {
@@ -112,8 +112,8 @@ class KerioModuleAPI:
         }
         answer = self.send_kerio_request(method + '.set', params)
         if answer is not None:
-            self.save_call([{'method': method + '.apply'}])
-            return answer
+            # self.save_call([{'method': method + '.apply'}])
+            return True
         return False
 
     def add_trusted_ip(self, ip, name):
