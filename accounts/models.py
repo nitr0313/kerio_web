@@ -7,7 +7,7 @@ User = get_user_model()
 # Create your models here.
 
 class IPAddress(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, related_name='ip_address')
     ipaddress = models.CharField(max_length=15, verbose_name=_("IP address"), default="0.0.0.0")
     is_active = models.BooleanField(default=True, verbose_name=_("Active"))
     in_kerio = models.BooleanField(default=False, verbose_name=_("Applied in Kerio"))
