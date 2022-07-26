@@ -12,7 +12,7 @@ class Status:
     title: str
     address: str
     status: bool = None
-    result: dict = None
+    result: str = None
 
 
 class TestModuleApi(KerioModuleAPI):
