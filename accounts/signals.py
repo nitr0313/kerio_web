@@ -15,19 +15,4 @@ def create_ipaddress_object(sender, instance, *args, **kwargs):
     """
     obj_ = IPAddress.objects.filter(user=instance).first()
     if obj_ is None:
-        IPAddress.objects.create(user=instance)
-
-
-@receiver(pre_save, sender=IPAddress)
-def change_user_ip_in_kerio(sender, instance, *args, **kwargs):
-    """
-    Отправка данных в kerio при изменении IP или активкности правила
-    """
-    old_ip = IPAddress.objects.filter(user=instance.user).first()
-    if old_ip is None or instance.ipaddress == "0.0.0.0":
-        return
-    if old_ip.ipaddress != instance.ipaddress or old_ip.is_active != instance.is_active:
-        kerio = KerioModuleAPI()
-        answer = kerio.set_trusted_ip(user=instance)
-        if 'errors' in answer and not answer['errors']:
-            instance.in_kerio = True
+        IPAddress.objects.create(user=instance)\
