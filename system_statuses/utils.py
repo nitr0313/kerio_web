@@ -1,4 +1,5 @@
 import json
+import random
 from dataclasses import dataclass
 
 import requests as requests
@@ -13,6 +14,13 @@ class Status:
     address: str
     status: bool = None
     result: str = None
+
+
+@dataclass
+class ResponseS:
+    url: str
+    status_code: int
+    text: str
 
 
 class TestModuleApi(KerioModuleAPI):
@@ -42,7 +50,6 @@ class TestModuleApi(KerioModuleAPI):
         self._result.append(self.create_status('Test kerio', result[1]))
 
     def get_statuses(self):
-
         for method_name in self.all_test():
             getattr(self, method_name)()
         return self._result
@@ -50,14 +57,18 @@ class TestModuleApi(KerioModuleAPI):
     def all_test(self):
         return [method for method in self.__dir__() if method.startswith('_status_')]
 
-    def raw_request(self, url, data, method='get') -> requests.Response:
-        if method == 'get':
-            response = self.session.get(url)
-        else:
-            response = self.session.post(url, data)
+    def raw_request(self, url, data, method='get') -> requests.Response | ResponseS:
+        print(f'test:\n\t{url=}\n\t{data=}\n\t{method=}')
+        try:
+            if method == 'get':
+                response = self.session.get(url)
+            else:
+                response = self.session.post(url, data)
+        except Exception as e:
+            return ResponseS(url=url, status_code=429, text=str(e))
         return response
 
-    def create_status(self, test_name, response: requests.Response):
+    def create_status(self, test_name, response: requests.Response | ResponseS):
         return Status(
             title=test_name,
             address=response.url,
@@ -74,9 +85,9 @@ class TestModuleApi(KerioModuleAPI):
             "details": {
                 "groupId": "0JTQvtCy0LXRgNC10L3QvdGL0LUgSVAgZm9yIFJEUA==",
                 "groupName": "Доверенные IP for RDP",
-                "host": '1.1.1.1',
+                "host": '.'.join([str(random.randint(1, 254)) for _ in range(4)]),
                 "type": "Host",
-                "enabled": True
+                "enabled": False
             }
         }
         result1 = self.send_kerio_request(method + '.set', params)
@@ -90,3 +101,4 @@ class TestModuleApi(KerioModuleAPI):
             params=params
         )
         return self.session.post(url, json.dumps(data))
+
