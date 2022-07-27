@@ -15,7 +15,7 @@
   <tbody>
   {% for ip in users_ip %}
     <tr>
-      <th scope="row">1</th>
+      <th scope="row">{{ forloop.counter }}</th>
       <td>{{ ip.user }}</td>
       <td>{{ ip.ipaddress }}</td>
       <td>{{ ip.is_active }}</td>
