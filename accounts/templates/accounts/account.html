@@ -23,7 +23,7 @@
                     </div>
                     {{ form.ipaddress }}
                     <div style="margin-left: 10px;" hx-get="{% url 'get_status_ip' pk=object.pk %}"
-                         hx-trigger="every 30s">
+                         hx-trigger="every 5s">
                         {% include 'accounts/includes/rounded_bage.html' %}
                     </div>
                 </div>
