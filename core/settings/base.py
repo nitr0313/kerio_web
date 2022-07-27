@@ -19,6 +19,7 @@ INSTALLED_APPS = [
 
 PROJECT_APPS = [
     'accounts',
+    'system_statuses'
 ]
 
 MIDDLEWARE = [
@@ -76,7 +77,7 @@ USE_I18N = True
 USE_TZ = True
 
 DATABASES = {'default': env.db('DATABASE_URL')}
-PUBLIC_ROOT = Path(env.str('PUBLIC_ROOT'), BASE_DIR / 'public')
+PUBLIC_ROOT = Path(env.str('PUBLIC_ROOT', BASE_DIR / 'public'))
 MEDIA_ROOT = PUBLIC_ROOT / 'media'
 MEDIA_URL = env.str('MEDIA_URL', default='/media/')
 
@@ -85,6 +86,10 @@ STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
 STATIC_URL = env.str('STATIC_URL', default='static/')
+
+REDIS_HOST = env.str('REDIS_HOST', default='localhost')
+REDIS_PORT = env.int('REDIS_PORT', default=6379)
+REDIS_DB = env.int('REDIS_DB', default=0)
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
@@ -97,6 +102,8 @@ KERIO_MODULE_USERNAME = env.str('KERIO_MODULE_USERNAME')
 KERIO_MODULE_PASSWORD = env.str('KERIO_MODULE_PASSWORD')
 KERIO_MODULE_HOST = env.str('KERIO_MODULE_HOST')
 KERIO_MODULE_PORT = env.str('KERIO_MODULE_PORT')
+KERIO_MODULE_COUNT_TRY = env.str('KERIO_MODULE_COUNT_TRY', 3)
+
 
 LOGGING = {
     'version': 1,
@@ -109,7 +116,7 @@ LOGGING = {
     'loggers': {
         'main_logger': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': True,
         },
     },

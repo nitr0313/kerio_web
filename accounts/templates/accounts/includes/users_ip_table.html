@@ -1,0 +1,32 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">User Name</th>
+      <th scope="col">IP Address</th>
+      <th scope="col">is_active</th>
+      <th scope="col">in_kerio</th>
+      <th scope="col">updated</th>
+      <th scope="col">kerio_id</th>
+      <th scope="col">kerio_description</th>
+      <th scope="col">kerio_group id</th>
+      <th scope="col">kerio_group name</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for ip in users_ip %}
+    <tr>
+      <th scope="row">{{ forloop.counter }}</th>
+      <td>{{ ip.user }}</td>
+      <td>{{ ip.ipaddress }}</td>
+      <td>{{ ip.is_active }}</td>
+      <td>{{ ip.in_kerio }}</td>
+      <td>{{ ip.updated }}</td>
+      <td>{{ ip.kerio_id }}</td>
+      <td>{{ ip.kerio_description }}</td>
+      <td>{{ ip.kerio_group.kerio_id }}</td>
+      <td>{{ ip.kerio_group.kerio_name }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>

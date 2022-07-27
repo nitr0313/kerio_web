@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .forms import IPAddressForm
 from .models import IPAddress
 from .service import KerioService
-from .tasks import sync_with_kerio_control
+from .tasks import sync_in_from_kerio_control
 
 
 class Profile(LoginRequiredMixin, View):
@@ -22,7 +22,6 @@ class Profile(LoginRequiredMixin, View):
 
     def post(self, request):
         context = self.get_context_data()
-
         bounded_form = IPAddressForm(request.POST, initial={'user': request.user})
         context['form'] = bounded_form
         if bounded_form.is_valid():
@@ -31,6 +30,7 @@ class Profile(LoginRequiredMixin, View):
                 new_ip=bounded_form.cleaned_data.get('ipaddress'),
                 is_active=bounded_form.cleaned_data.get('is_active')
             )
+
         return render(request, self.template_name, context)
 
     def get_queryset(self) -> QuerySet:
@@ -49,14 +49,30 @@ class Profile(LoginRequiredMixin, View):
             object=instance,
             current_ip=current_ip
         )
+        if self.request.user.is_staff:
+            context.update({
+                'users_ip': IPAddress.objects.all()
+            })
         return context
 
 
 @require_GET
 @login_required
 def get_status_ip(request, pk):
-    object = get_object_or_404(IPAddress, id=pk)
-    return render(request, "accounts/includes/rounded_bage.html", {'object': object})
+    """
+    You can respond with the HTTP response code 286
+    and the element will cancel the polling.
+    :param request:
+    :param pk:
+    :return:
+    """
+    obj = get_object_or_404(IPAddress, id=pk)
+    return render(
+        request=request,
+        template_name="accounts/includes/rounded_bage.html",
+        context={'object': obj},
+        status=286 if obj.in_kerio else None
+    )
 
 
 class Login(LoginView):
@@ -68,5 +84,5 @@ class Logout(LogoutView):
 
 
 def sync_db(request):
-    sync_with_kerio_control()
+    sync_in_from_kerio_control.delay()
     return redirect('profile')

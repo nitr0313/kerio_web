@@ -19,7 +19,8 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('accounts.urls'))
+    path('', include('accounts.urls')),
+    path('status/', include('system_statuses.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += [

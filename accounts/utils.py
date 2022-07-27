@@ -6,7 +6,9 @@ import requests
 from django.conf import settings
 from dataclasses import dataclass
 
-from accounts.models import KerioGroup
+from accounts.models import KerioGroup, IPAddress
+
+logger = logging.getLogger('main_logger')
 
 from django.conf import settings
 
@@ -24,21 +26,18 @@ class KerioModuleAPI:
         self.get_token()
 
     def send_kerio_request(self, method, params) -> dict:
-        url = f"http://{self.host}:{self.port}/kerio_request"
+        url = self.get_base_path() + "kerio_request"
         data = dict(
             method=method,
             params=params
         )
         response = self.session.post(url, json.dumps(data))
         if response.status_code == 401:
-            print("Не авторизован!")
+            # "Не авторизован!"
             self.token = None
             self.get_token()
             response = self.session.post(url, json.dumps(data))
-            # os.environ.setdefault("TOKEN", None)
-        if response.status_code == 200:
-            return self.handle_request(response)
-        return {}
+        return self.handle_request(response)
 
     def request(self, url, data) -> dict:
         response = self.session.post(url, data)
@@ -52,11 +51,11 @@ class KerioModuleAPI:
         m = 'No specific method: '
         if method != '':
             m = "While running {}".format(method)
-        raise SystemError("{} {}".format(m, message))
+        print("{} {}".format(m, message))
 
     def handle_request(self, r):
         result = json.loads(r.text)
-
+        # TODO add logging and bad result with information about errors
         if 'error' in result:
             self.add_error(result['error'])
         if 'errors' in result and result['errors']:
@@ -99,7 +98,7 @@ class KerioModuleAPI:
             for user in self.get_trusted_ips()]
         return all_ids
 
-    def set_trusted_ip(self, user):
+    def set_trusted_ip(self, user: IPAddress):
         method = "IpAddressGroups"
 
         params = {
@@ -116,8 +115,8 @@ class KerioModuleAPI:
         }
         answer = self.send_kerio_request(method + '.set', params)
         if answer is not None:
-            self.save_call([{'method': method + '.apply'}])
-            return answer
+            # self.save_call([{'method': method + '.apply'}])
+            return True
         return False
 
     def add_trusted_ip(self, ip, name):
@@ -168,6 +167,9 @@ class KerioModuleAPI:
         print("logout")
         self.send_kerio_request("Session.logout", {})
 
+    def get_base_path(self):
+        return f"http://{self.host}:{self.port}/"
+
 
 if __name__ == "__main__":
     @dataclass
@@ -178,7 +180,7 @@ if __name__ == "__main__":
         KERIO_MODULE_PORT: str
 
 
-    settings = Settings(KERIO_MODULE_USERNAME='Admin', KERIO_MODULE_PASSWORD='15072003', KERIO_MODULE_HOST='127.0.0.1',
+    settings = Settings(KERIO_MODULE_USERNAME='###', KERIO_MODULE_PASSWORD='###', KERIO_MODULE_HOST='127.0.0.1',
                         KERIO_MODULE_PORT='8000')
     kerio = KerioModuleAPI()
     kerio.get_trusted_ips()

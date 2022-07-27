@@ -14,22 +14,30 @@
             {% trans 'Your current IP' %}: <span class="text-bg-success"> {{ current_ip }}</span>
         </div>
         <div class="mt-5" style="text-align: -webkit-center;">
-        <form method="post" style="width: 20rem">
-            {% csrf_token %}
+            <form method="post" style="width: 20rem">
+                {% csrf_token %}
 
-            <div class="input-group mb-4">
-                <div class="input-group-text">
-                    {{ form.is_active }}
+                <div class="input-group mb-4">
+                    <div class="input-group-text">
+                        {{ form.is_active }}
+                    </div>
+                    {{ form.ipaddress }}
+                    <div style="margin-left: 10px;" hx-get="{% url 'get_status_ip' pk=object.pk %}"
+                         hx-trigger="every 5s">
+                        {% include 'accounts/includes/rounded_bage.html' %}
+                    </div>
                 </div>
-                {{ form.ipaddress }}
-                <div style="margin-left: 10px;" hx-get="{% url 'get_status_ip' pk=object.pk %}" hx-trigger="every 30s">
-                    {% include 'accounts/includes/rounded_bage.html' %}
-                </div>
-            </div>
-
-
-            <button type="submit" class="btn btn-primary">{% trans 'Save' %} </button>
-        </form>
+                <button type="submit" class="btn btn-primary">{% trans 'Save' %} </button>
+            </form>
         </div>
+        {% if request.user.is_staff %}
+            {% include 'accounts/includes/users_ip_table.html' %}
+
+            <div class="log">
+            {% for log in logs %}
+                <p>{{ log }}</p>
+            {% endfor %}
+            </div>
+        {% endif %}
     </div>
 {% endblock content %}
