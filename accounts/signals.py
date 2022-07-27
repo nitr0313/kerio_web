@@ -15,4 +15,4 @@ def create_ipaddress_object(sender, instance, *args, **kwargs):
     """
     obj_ = IPAddress.objects.filter(user=instance).first()
     if obj_ is None:
-        IPAddress.objects.create(user=instance)\
+        IPAddress.objects.create(user=instance)
