@@ -58,8 +58,13 @@ class KerioModuleAPI:
         # TODO add logging and bad result with information about errors
         if 'error' in result:
             self.add_error(result['error'])
+            return []
         if 'errors' in result and result['errors']:
             self.add_error(result['errors'][0]['message'])
+            return []
+        if 'detail' in result:
+            self.add_error(result['detail'])
+            return []
         return result
 
     def get_token(self):
@@ -86,6 +91,7 @@ class KerioModuleAPI:
         params = {"query": {"start": start, "limit": limit,
                             "orderBy": [{"columnName": "description", "direction": "Asc"}]}}
         answer = self.send_kerio_request(method, params)
+
         if not answer:
             return []
         ips = answer["list"]
