@@ -1,10 +1,10 @@
 from celery import shared_task
 from django.contrib.auth import get_user_model
 from django.conf import settings
+from django.core.mail import send_mail
 
 from accounts.models import IPAddress, KerioGroup
-from accounts.utils import KerioModuleAPI
-
+from accounts.utils import KerioModuleAPI, send_email_about_new_ip
 
 User = get_user_model()
 
@@ -75,4 +75,4 @@ def change_user_ip_in_kerio(user_id):
         ip_address = user.ip_address
         ip_address.in_kerio = True
         ip_address.save()
-        break
+        return send_email_about_new_ip(user_id, user.ip_address.ipaddress)

@@ -104,6 +104,15 @@ KERIO_MODULE_HOST = env.str('KERIO_MODULE_HOST')
 KERIO_MODULE_PORT = env.str('KERIO_MODULE_PORT')
 KERIO_MODULE_COUNT_TRY = env.str('KERIO_MODULE_COUNT_TRY', 3)
 
+EMAIL_CONFIG = env.email(
+    'EMAIL_URL',
+    default='consolemail://'
+)
+
+vars().update(EMAIL_CONFIG)
+FROM_EMAIL = env.str("FROM_EMAIL", "example@example.com")
+EMAIL_HOST = env.str("EMAIL_HOST", 'smtp.example.com')
+
 
 LOGGING = {
     'version': 1,

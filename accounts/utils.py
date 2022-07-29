@@ -6,13 +6,14 @@ import requests
 from django.conf import settings
 from dataclasses import dataclass
 
+from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+
 from accounts.models import KerioGroup, IPAddress
 
 logger = logging.getLogger('main_logger')
+User = get_user_model()
 
-from django.conf import settings
-
-logger = logging.getLogger("main_logger")
 
 class KerioModuleAPI:
 
@@ -175,6 +176,25 @@ class KerioModuleAPI:
 
     def get_base_path(self):
         return f"http://{self.host}:{self.port}/"
+
+
+def send_email_about_new_ip(user_id, new_ip):
+    print(f"send_mail to {user_id=} about {new_ip=}")
+    user = User.objects.get(id=user_id)
+    if not user.email:
+        return
+    email = user.email
+    name = user.first_name or user.username
+    try:
+        cc = send_mail(
+            subject='Уведомвление от сайта по изменения IP!',
+            message=f'Добрый день, {name}!\nВаш ip [{new_ip}] был добавлен в список доверенных',
+            from_email='sovmk@ya.ru',
+            recipient_list=[email],
+        )
+    except Exception as e:
+        return str(e)
+    return cc
 
 
 if __name__ == "__main__":
