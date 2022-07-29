@@ -6,38 +6,44 @@
 
 
 {% block content %}
-    <div class="mt-5 row d-flex justify-content-center align-items-center h-100">
-        <div class="" style="text-align: center; font-weight: bold; font-size: x-large">
-            {% trans 'Hello' %}, {{ request.user|title }}!
-        </div>
-        <div class="" style="text-align: center; font-weight: bold; font-size: x-large">
-            {% trans 'Your current IP' %}: <span class="text-bg-success"> {{ current_ip }}</span>
-        </div>
-        <div class="mt-5" style="text-align: -webkit-center;">
-            <form method="post" style="width: 20rem">
-                {% csrf_token %}
-
-                <div class="input-group mb-4">
-                    <div class="input-group-text">
-                        {{ form.is_active }}
-                    </div>
-                    {{ form.ipaddress }}
-                    <div style="margin-left: 10px;" hx-get="{% url 'get_status_ip' pk=object.pk %}"
-                         hx-trigger="every 5s">
-                        {% include 'accounts/includes/rounded_bage.html' %}
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">{% trans 'Save' %} </button>
-            </form>
-        </div>
-        {% if request.user.is_staff %}
-            {% include 'accounts/includes/users_ip_table.html' %}
-
-            <div class="log">
-            {% for log in logs %}
-                <p>{{ log }}</p>
-            {% endfor %}
+    {% with request.user as user %}
+        <div class="mt-5 row d-flex justify-content-center align-items-center h-100">
+            <div class="" style="text-align: center; font-weight: bold; font-size: x-large">
+                {% trans 'Hello' %}, {% if user.first_name %}
+                {{ user.first_name |title }}
+            {% else %}
+                {{ user |title }}
+            {% endif %} !
             </div>
-        {% endif %}
-    </div>
+            <div class="" style="text-align: center; font-weight: bold; font-size: x-large">
+                {% trans 'Your current IP' %}: <span class="text-bg-success"> {{ current_ip }}</span>
+            </div>
+            <div class="mt-5" style="text-align: -webkit-center;">
+                <form method="post" style="width: 20rem">
+                    {% csrf_token %}
+
+                    <div class="input-group mb-4">
+                        <div class="input-group-text">
+                            {{ form.is_active }}
+                        </div>
+                        {{ form.ipaddress }}
+                        <div style="margin-left: 10px;" hx-get="{% url 'get_status_ip' pk=object.pk %}"
+                             hx-trigger="every 5s">
+                            {% include 'accounts/includes/rounded_bage.html' %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">{% trans 'Save' %} </button>
+                </form>
+            </div>
+            {% if request.user.is_staff %}
+                {% include 'accounts/includes/users_ip_table.html' %}
+
+                <div class="log">
+                    {% for log in logs %}
+                        <p>{{ log }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endwith %}
 {% endblock content %}
