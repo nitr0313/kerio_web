@@ -187,7 +187,7 @@ def send_email_about_new_ip(user_id, new_ip):
     name = user.first_name or user.username
     try:
         cc = send_mail(
-            subject='Уведомвление от сайта по изменения IP!',
+            subject='Уведомление от сайта об изменении IP!',
             message=f'Добрый день, {name}!\nВаш ip [{new_ip}] был добавлен в список доверенных',
             from_email='sovmk@ya.ru',
             recipient_list=[email],

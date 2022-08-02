@@ -7,6 +7,7 @@ from django.views import View
 from django.views.decorators.http import require_GET
 from django.shortcuts import get_object_or_404, redirect, render
 
+from action_logger.service import ActionLoggerService
 from .forms import IPAddressForm
 from .models import IPAddress
 from .service import KerioService
@@ -44,10 +45,12 @@ class Profile(LoginRequiredMixin, View):
             current_ip = self.request.META.get('REMOTE_ADDR')
         instance = self.get_queryset()
         form = IPAddressForm(instance=instance)
+        logs = ActionLoggerService(self.request.user)
         context = dict(
             form=form,
             object=instance,
-            current_ip=current_ip
+            current_ip=current_ip,
+            logs=logs.get_logs(2)
         )
         if self.request.user.is_staff:
             context.update({
@@ -84,5 +87,12 @@ class Logout(LogoutView):
 
 
 def sync_db(request):
+    action = ActionLoggerService(request.user)
+    action.add_task_sync_db()
     sync_in_from_kerio_control.delay()
     return redirect('profile')
+
+
+def get_logs(request, count=None):
+    action = ActionLoggerService(request.user)
+    return render(request, "accounts/includes/logs.html", {"logs": action.get_logs(count)})

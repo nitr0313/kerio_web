@@ -18,8 +18,9 @@ INSTALLED_APPS = [
 ]
 
 PROJECT_APPS = [
-    'accounts',
-    'system_statuses'
+    'accounts.apps.AccountsConfig',
+    'system_statuses.apps.SystemStatusesConfig',
+    'action_logger.apps.ActionLoggerConfig'
 ]
 
 MIDDLEWARE = [

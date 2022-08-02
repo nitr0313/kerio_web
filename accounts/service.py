@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from accounts.models import IPAddress
 from accounts.tasks import change_user_ip_in_kerio
+from action_logger.service import ActionLoggerService
 
 
 class KerioService:
@@ -22,6 +23,8 @@ class KerioService:
         :return:
         """
         ip_object = self.get_ip_from_db()
+        log = ActionLoggerService(self.user)
+        log.change_ip(ip_object.ipaddress, new_ip)
         if new_ip is not None and new_ip != ip_object.ipaddress:
             ip_object.ipaddress = new_ip
             ip_object.in_kerio = False

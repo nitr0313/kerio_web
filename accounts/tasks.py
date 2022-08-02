@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 
 from accounts.models import IPAddress, KerioGroup
 from accounts.utils import KerioModuleAPI, send_email_about_new_ip
+from action_logger.service import ActionLoggerService
 
 User = get_user_model()
 
@@ -56,6 +57,8 @@ def sync_in_from_kerio_control():
             result['created'] += 1
             continue
         result['updated'] += 1
+    action = ActionLoggerService('Admin')
+    action.sync_db()
     return result
 
 
@@ -75,4 +78,6 @@ def change_user_ip_in_kerio(user_id):
         ip_address = user.ip_address
         ip_address.in_kerio = True
         ip_address.save()
+        action = ActionLoggerService(user)
+        action.ip_updated_in_kerio(ip_address.ipaddress)
         return send_email_about_new_ip(user_id, user.ip_address.ipaddress)

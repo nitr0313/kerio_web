@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import Profile, get_status_ip, Login, Logout, sync_db
+from .views import Profile, get_status_ip, Login, Logout, sync_db, get_logs
 
 
 urlpatterns = [
@@ -8,4 +8,5 @@ urlpatterns = [
     path("login/", Login.as_view(), name="login"),
     path("logout/", Logout.as_view(), name="logout"),
     path("sync/", sync_db, name="sync"),
+    path("get_logs/<int:count>", get_logs, name='get_logs')
 ]
