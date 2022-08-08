@@ -1,19 +1,19 @@
+import abc
 import json
-import random
+import redis
+
+from abc import ABC, abstractclassmethod
 from dataclasses import dataclass
 
 import requests as requests
+from celery.result import AsyncResult
+from celery.utils.serialization import jsonify
 
 from accounts.utils import KerioModuleAPI
 from django.conf import settings
 
-
-@dataclass
-class Status:
-    title: str
-    address: str
-    status: bool = None
-    result: str = None
+redis_instance = redis.StrictRedis(host=settings.REDIS_HOST,
+                                   port=settings.REDIS_PORT, db=0)
 
 
 @dataclass
@@ -23,82 +23,158 @@ class ResponseS:
     text: str
 
 
-class TestModuleApi(KerioModuleAPI):
+@dataclass
+class Status:
+    title: str
+    address: str
+    status: bool = None
+    result: str = None
 
-    def __init__(self):
-        super().__init__()
-        self._result = list()
+    def __str__(self):
+        return f"{self.title} -> Status: {self.status}"
 
-    def _status_api(self):
-        url = self.get_base_path()
-        result = self.raw_request(url=url, data={})
-        self._result.append(self.create_status('Api status', result))
+    def update(self, new):
+        for key, value in new.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
 
-    def _status_login(self):
-        username = settings.KERIO_MODULE_USERNAME
-        password = settings.KERIO_MODULE_PASSWORD
-        url = f"http://{self.host}:{self.port}/token"
-        data = {"username": username, "password": password}
-        result = self.raw_request(url=url, data=data, method='post')
-        if 'access_token' in result.text:
-            self.session.headers.update({"Authorization": 'Bearer ' + json.loads(result.text)['access_token']})
-        self._result.append(self.create_status('Try API Login', result))
 
-    def _status_kerio(self):
-        result = self.set_trusted_ip('koran')
-        self._result.append(self.create_status('Test kerio', result[0]))
-        self._result.append(self.create_status('Test kerio', result[1]))
+class BaseCheckKerioModule(ABC):
+    next_task: str = None
+    title: str = None
+    test_path: str = None
 
-    def get_statuses(self):
-        for method_name in self.all_test():
-            getattr(self, method_name)()
-        return self._result
+    def run_test(self, base_path, session):
+        raise NotImplementedError
 
-    def all_test(self):
-        return [method for method in self.__dir__() if method.startswith('_status_')]
-
-    def raw_request(self, url, data, method='get') -> requests.Response | ResponseS:
-        print(f'test:\n\t{url=}\n\t{data=}\n\t{method=}')
+    @staticmethod
+    def raw_request(session, url, data, method='get'):
         try:
             if method == 'get':
-                response = self.session.get(url)
+                response = session.get(url)
             else:
-                response = self.session.post(url, data)
+                response = session.post(url, data)
         except Exception as e:
-            return ResponseS(url=url, status_code=429, text=str(e))
+            return ResponseS(url=url, status_code=429, text=str(e)).__dict__
         return response
+
+    @staticmethod
+    def get_result(task_id):
+        result = AsyncResult(task_id)
+        return jsonify({'task_id': result.task_id, 'task_status': result.status})
+
+
+class CheckKerioModuleAvailable(BaseCheckKerioModule):
+    dependency = None
+    title = "kerio_module_available"
+    test_path = "ping"
+
+    def run_test(self, base_path, session):
+        url = f"{base_path}{self.test_path}"
+        result = self.raw_request(session=session, url=url, data={})
+        return result
+
+
+class CheckKerioModuleAuth(BaseCheckKerioModule):
+    dependency = CheckKerioModuleAvailable
+    title = "kerio_module_auth"
+    test_path = "token"
+
+    def run_test(self, base_path, session):
+        url = f"{base_path}{self.test_path}"
+        username = settings.KERIO_MODULE_USERNAME
+        password = settings.KERIO_MODULE_PASSWORD
+        data = {"username": username, "password": password}
+        result = self.raw_request(session=session, url=url, data=data, method="post")
+        return result
+
+
+class CheckKerioControlStatus(BaseCheckKerioModule):
+    dependency = CheckKerioModuleAuth
+    title = "kerio_control_status"
+    test_path = "status"
+
+    def run_test(self, base_path, session):
+        url = f"{base_path}{self.test_path}"
+        result = self.raw_request(session=session, url=url, data={})
+        return result
+
+
+class CheckersKeeper:
+    tests = []
+
+    def __init__(self, objects: list):
+        self._add(objects)
+
+    def _add(self, objects):
+        for obj in objects:
+            dep = obj.dependency
+            if dep is None:
+                self.tests.insert(0, obj)
+            elif dep in self.tests:
+                index = self.tests.index(dep)
+                self.tests.insert(index + 1, obj)
+            else:
+                self.tests.append(obj)
+
+    def __iter__(self):
+        for test in self.tests:
+            yield test
+
+
+class TestModuleApi:
+    session = None
+
+    def __init__(self):
+        self.host = settings.KERIO_MODULE_HOST
+        self.port = settings.KERIO_MODULE_PORT
+        self.create_session()
+        self._result = list()
+        self.tests = CheckersKeeper([CheckKerioModuleAvailable,
+                                     CheckKerioModuleAuth,
+                                     CheckKerioControlStatus])
+
+    def create_session(self):
+        if self.session is None:
+            self.session = requests.Session()
+
+    def get_base_path(self):
+        return f"http://{self.host}:{self.port}/"
+
+    def get_tests(self):
+        result: dict = {}
+        for test in self.tests:
+            result[test.title] = Status(
+                title=test.title,
+                address=f"{self.get_base_path()}{test.test_path}"
+            )
+        return result
+
+    def start_tests(self, task_id=None):
+        result: dict = {}
+        for CheckClass in self.tests:
+            obj = CheckClass()
+            response = obj.run_test(base_path=self.get_base_path(), session=self.session)
+            data = dict(
+                title=obj.title,
+                status=True if response.status_code == 200 else False,
+                result=f"{response.text[:20]}..." if 'access_token' in response.text else response.text
+            )
+            # redis_instance.set(f"{AsyncResult.task_id}_check_{obj.title}", json.dumps(data))
+            redis_instance.set(f"{task_id}_check_{obj.title}", json.dumps(data))
+
+            result[obj.title] = self.create_status(
+                test_name=obj.title,
+                response=response)
+        return result
 
     def create_status(self, test_name, response: requests.Response | ResponseS):
         return Status(
             title=test_name,
             address=response.url,
             status=True if response.status_code == 200 else False,
-            result=f"{response.text[:20]}..." if 'access_token' in response.text else response.text
-        )
+            result=f"{response.text[:20]}..." if 'access_token' in response.text else response.text)
 
-    def set_trusted_ip(self, user=None) -> tuple:
-        method = "IpAddressGroups"
-        params = {
-            "groupIds": [
-                76
-            ],
-            "details": {
-                "groupId": "0JTQvtCy0LXRgNC10L3QvdGL0LUgSVAgZm9yIFJEUA==",
-                "groupName": "Доверенные IP for RDP",
-                "host": '.'.join([str(random.randint(1, 254)) for _ in range(4)]),
-                "type": "Host",
-                "enabled": False
-            }
-        }
-        result1 = self.send_kerio_request(method + '.set', params)
-        result2 = self.save_call([{'method': method + '.apply'}])
-        return result1, result2
-
-    def send_kerio_request(self, method, params) -> requests.Response:
-        url = self.get_base_path() + "kerio_request"
-        data = dict(
-            method=method,
-            params=params
-        )
-        return self.session.post(url, json.dumps(data))
-
+    def get_result(self, task_id):
+        result = AsyncResult(task_id)
+        return jsonify({'task_id': result.task_id, 'task_status': result.status})
