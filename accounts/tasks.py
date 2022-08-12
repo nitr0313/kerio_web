@@ -19,10 +19,10 @@ def sync_with_kerio_control():
     results = []
     for ip_object in all_ips:
         for user_in_kerio in answer:
-            if ip_object.kerio_id == user_in_kerio['id']:
+            if ip_object.router_id == user_in_kerio['id']:
                 ip_object.is_active = user_in_kerio['enabled']
                 ip_object.ipaddress = user_in_kerio['host']
-                ip_object.in_kerio = True
+                ip_object.in_router = True
                 results.append(ip_object)
     IPAddress.objects.bulk_update(results, fields=['ipaddress', 'is_active', 'in_kerio'])
 
@@ -75,7 +75,7 @@ def change_user_ip_in_kerio(user_id):
             count -= 1
             continue
         ip_address = user.ip_address
-        ip_address.in_kerio = True
+        ip_address.in_router = True
         ip_address.save()
         action = ActionLoggerService(user)
         action.ip_updated_in_kerio(ip_address.ipaddress)

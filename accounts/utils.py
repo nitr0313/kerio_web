@@ -110,11 +110,11 @@ class KerioModuleAPI:
 
         params = {
             "groupIds": [
-                user.kerio_id
+                user.router_id
             ],
             "details": {
-                "groupId": user.kerio_group.kerio_id,
-                "groupName": user.kerio_group.kerio_name,
+                "groupId": user.router_group.kerio_id,
+                "groupName": user.router_group.kerio_name,
                 "host": user.ipaddress,
                 "type": "Host",
                 "enabled": user.is_active

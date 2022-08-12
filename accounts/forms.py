@@ -5,7 +5,7 @@ from .models import IPAddress
 class IPAddressForm(forms.ModelForm):
     class Meta:
         model = IPAddress
-        fields = ["ipaddress", "is_active", "in_kerio"]
+        fields = ["ipaddress", "is_active", "in_router"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

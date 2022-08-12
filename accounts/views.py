@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from action_logger.service import ActionLoggerService
 from .forms import IPAddressForm
 from .models import IPAddress
-from .service import KerioService
+from .service import IPService
 from .tasks import sync_in_from_kerio_control
 
 
@@ -26,7 +26,7 @@ class Profile(LoginRequiredMixin, View):
         bounded_form = IPAddressForm(request.POST, initial={'user': request.user})
         context['form'] = bounded_form
         if bounded_form.is_valid():
-            kerio = KerioService(user=request.user)
+            kerio = IPService(user=request.user)
             context['object'] = kerio.change_object_in_db(
                 new_ip=bounded_form.cleaned_data.get('ipaddress'),
                 is_active=bounded_form.cleaned_data.get('is_active')
@@ -74,7 +74,7 @@ def get_status_ip(request, pk):
         request=request,
         template_name="accounts/includes/rounded_bage.html",
         context={'object': obj},
-        status=286 if obj.in_kerio else None
+        status=286 if obj.in_router else None
     )
 
 

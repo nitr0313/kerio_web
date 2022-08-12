@@ -4,7 +4,7 @@ from accounts.tasks import change_user_ip_in_kerio
 from action_logger.service import ActionLoggerService
 
 
-class KerioService:
+class IPService:
     def __init__(self, user: User):
         self.user = user
 
@@ -26,10 +26,10 @@ class KerioService:
         log = ActionLoggerService(self.user)
         if new_ip is not None and new_ip != ip_object.ipaddress:
             ip_object.ipaddress = new_ip
-            ip_object.in_kerio = False
+            ip_object.in_router = False
         if is_active is not None and is_active != ip_object.is_active:
             ip_object.is_active = is_active
-            ip_object.in_kerio = False
+            ip_object.in_router = False
         if any([new_ip, is_active]):
             ip_object.save()
             log.change_ip(ip_object.ipaddress, new_ip, ip_object.is_active, is_active)

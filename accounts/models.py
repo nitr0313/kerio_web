@@ -11,13 +11,13 @@ class IPAddress(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, related_name='ip_address', default=None)
     ipaddress = models.CharField(max_length=15, verbose_name=_("IP address"), default="0.0.0.0")
     is_active = models.BooleanField(default=True, verbose_name=_("Is active"))
-    in_kerio = models.BooleanField(default=False, verbose_name=_("Applied in Kerio"))
+    in_router = models.BooleanField(default=False, verbose_name=_("Applied in Router"))
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    kerio_id = models.CharField(max_length=5, null=True, blank=True, default=None, verbose_name=_("ID in KerioControl"))
-    kerio_description = models.CharField(max_length=200, blank=True, null=True,
-                                         verbose_name=_("Description in KerioControl "))
-    kerio_group = models.ForeignKey("KerioGroup", on_delete=models.SET_NULL, null=True)
+    router_id = models.CharField(max_length=5, null=True, blank=True, default=None, verbose_name=_("ID in Router"))
+    router_description = models.CharField(max_length=200, blank=True, null=True,
+                                          verbose_name=_("Description in Router "))
+    router_group = models.ForeignKey("KerioGroup", on_delete=models.SET_NULL, null=True)
 
     class Meta:
         verbose_name = _("IP address")
