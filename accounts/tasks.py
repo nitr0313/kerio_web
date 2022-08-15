@@ -3,28 +3,10 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 
 from accounts.models import IPAddress, KerioGroup
-from accounts.utils import KerioModuleAPI, send_email_about_new_ip
+from accounts.utils import RemoteModuleAPI, send_email_about_new_ip
 from action_logger.service import ActionLoggerService
 
 User = get_user_model()
-
-
-@shared_task
-def sync_with_kerio_control():
-    kerio = KerioModuleAPI()
-    answer = kerio.get_trusted_ips()
-    if not answer:
-        return
-    all_ips = list(IPAddress.objects.all())
-    results = []
-    for ip_object in all_ips:
-        for user_in_kerio in answer:
-            if ip_object.router_id == user_in_kerio['id']:
-                ip_object.is_active = user_in_kerio['enabled']
-                ip_object.ipaddress = user_in_kerio['host']
-                ip_object.in_router = True
-                results.append(ip_object)
-    IPAddress.objects.bulk_update(results, fields=['ipaddress', 'is_active', 'in_kerio'])
 
 
 @shared_task
@@ -35,8 +17,8 @@ def sync_in_from_kerio_control():
     обновляет в ней данные
     :return:
     """
-    kerio = KerioModuleAPI()
-    answer = kerio.get_trusted_ips()
+    kerio = RemoteModuleAPI()
+    answer = kerio.get_all_users_ips()
     if not answer:
         return
     result = {'updated': 0, 'created': 0}
@@ -62,11 +44,11 @@ def sync_in_from_kerio_control():
 
 
 @shared_task
-def change_user_ip_in_kerio(user_id):
+def change_user_ip_in_router(user_id):
     """
     Отправка данных в kerio при изменении IP или активкности правила
     """
-    kerio = KerioModuleAPI()
+    kerio = RemoteModuleAPI()
     user = User.objects.get(id=user_id)
     count = settings.KERIO_MODULE_COUNT_TRY
     while count > 0:

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from accounts.models import IPAddress
-from accounts.tasks import change_user_ip_in_kerio
+from accounts.tasks import change_user_ip_in_router
 from action_logger.service import ActionLoggerService
 
 
@@ -33,7 +33,7 @@ class IPService:
         if any([new_ip, is_active]):
             ip_object.save()
             log.change_ip(ip_object.ipaddress, new_ip, ip_object.is_active, is_active)
-            change_user_ip_in_kerio.delay(self.user.id)
+            change_user_ip_in_router.delay(self.user.id)
         return ip_object
 
     def get_all_ip_in_db(self):

@@ -9,7 +9,7 @@ import requests as requests
 from celery.result import AsyncResult
 from celery.utils.serialization import jsonify
 
-from accounts.utils import KerioModuleAPI
+from accounts.utils import RemoteModuleAPI
 from django.conf import settings
 
 redis_instance = redis.StrictRedis(host=settings.REDIS_HOST,

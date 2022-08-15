@@ -3,7 +3,6 @@ from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 
 from .models import IPAddress
-from .utils import KerioModuleAPI
 
 User = get_user_model()
 
