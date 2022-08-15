@@ -24,6 +24,8 @@ class KerioService:
         """
         ip_object = self.get_ip_from_db()
         log = ActionLoggerService(self.user)
+        log.change_ip(ip_object.ipaddress, new_ip, ip_object.is_active, is_active)
+
         if new_ip is not None and new_ip != ip_object.ipaddress:
             ip_object.ipaddress = new_ip
             ip_object.in_kerio = False
@@ -32,7 +34,6 @@ class KerioService:
             ip_object.in_kerio = False
         if any([new_ip, is_active]):
             ip_object.save()
-            log.change_ip(ip_object.ipaddress, new_ip, ip_object.is_active, is_active)
             change_user_ip_in_kerio.delay(self.user.id)
         return ip_object
 
