@@ -2,6 +2,8 @@ from pathlib import Path
 
 import environ
 
+VERSION = '0.1 beta'
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env = environ.Env()
@@ -62,6 +64,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'accounts.context_processors.current_version'
             ],
         },
     },

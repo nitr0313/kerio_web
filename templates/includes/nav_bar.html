@@ -18,6 +18,10 @@
                         <a class="nav-link active" aria-current="page" href="/sync/">Sync with Kerio</a>
                     </li>
                 {% endif %}
+
+                <li class="nav-item">
+                    <a class="nav-link disabled" aria-current="page" href="#">{{ current_version }}</a>
+                </li>
             </ul>
             <a class="d-flex btn btn-primary" href="{% url "logout" %}">Logout</a>
         </div>
