@@ -1,3 +1,5 @@
 {% for log in logs %}
     <p>{{ log.created }} - {{ log.msg }}</p>
+    {% empty %}
+    <p>Логов нет</p>
 {% endfor %}

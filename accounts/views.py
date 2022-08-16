@@ -19,6 +19,7 @@ class Profile(LoginRequiredMixin, View):
     template_name = "accounts/account.html"
 
     def get(self, request):
+        request.session["log_page_num"] = 0
         return render(request, self.template_name, self.get_context_data())
 
     def post(self, request):
@@ -50,7 +51,7 @@ class Profile(LoginRequiredMixin, View):
             form=form,
             object=instance,
             current_ip=current_ip,
-            logs=logs.get_logs(2)
+            logs=logs.get_page(0),
         )
         if self.request.user.is_staff:
             context.update({
@@ -89,10 +90,21 @@ class Logout(LogoutView):
 def sync_db(request):
     action = ActionLoggerService(request.user)
     action.add_task_sync_db()
-    sync_in_from_kerio_control.delay()
+    sync_in_from_kerio_control()
     return redirect('profile')
 
 
-def get_logs(request, count=None):
+def get_more_logs(request):
     action = ActionLoggerService(request.user)
-    return render(request, "accounts/includes/logs.html", {"logs": action.get_logs(count)})
+    # page_num = request.session.get("page_num")
+    if not (page_num := request.session.get("log_page_num")):
+        request.session["log_page_num"] = 2
+        page_num = 1
+    logs = action.get_page(page_num)
+    if logs:
+        request.session["log_page_num"] += 1
+    return render(
+        request,
+        "accounts/includes/logs.html",
+        {"logs": logs}
+    )

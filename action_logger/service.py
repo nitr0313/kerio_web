@@ -4,8 +4,9 @@ from .models import ActionLogger
 class ActionLoggerService:
     model = ActionLogger
 
-    def __init__(self, user):
+    def __init__(self, user, records_on_page: int = 10):
         self.user = user
+        self.records_on_page = 5
 
     def change_ip(self, old_ip, new_ip, old_state, new_state):
         self.create_obj(
@@ -22,7 +23,13 @@ class ActionLoggerService:
         self.create_obj(f"{self.user} Задача выполенна успешно")
 
     def get_logs(self, last: int = None):
-        return list(self.model.objects.all().order_by('-created'))[:last]
+        return list(self.model.objects.all().order_by('-created'))[:3]
+
+    def get_page(self, page_num=0):
+        start, finish = page_num*self.records_on_page, (page_num+1)*self.records_on_page
+        return list(
+            self.model.objects.all().order_by('-created')
+        )[start:finish]
 
     def create_obj(self, msg):
         self.model.objects.create(msg=msg)
