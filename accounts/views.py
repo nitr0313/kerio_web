@@ -90,7 +90,7 @@ class Logout(LogoutView):
 def sync_db(request):
     action = ActionLoggerService(request.user)
     action.add_task_sync_db()
-    sync_in_from_kerio_control()
+    sync_in_from_kerio_control.delay()
     return redirect('profile')
 
 

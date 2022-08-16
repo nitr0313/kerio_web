@@ -14,10 +14,10 @@ class IPAddress(models.Model):
     in_kerio = models.BooleanField(default=False, verbose_name=_("Applied in Kerio"))
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    kerio_id = models.CharField(max_length=5, null=True, blank=True, default=None, verbose_name=_("ID in KerioControl"))
+    kerio_id = models.CharField(max_length=5, null=True, unique=True, verbose_name=_("ID in KerioControl"))
     kerio_description = models.CharField(max_length=200, blank=True, null=True,
                                          verbose_name=_("Description in KerioControl "))
-    kerio_group = models.ForeignKey("KerioGroup", on_delete=models.SET_NULL, null=True)
+    kerio_group = models.ForeignKey("KerioGroup", on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         verbose_name = _("IP address")

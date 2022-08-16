@@ -41,6 +41,11 @@ def sync_in_from_kerio_control():
         return
     result = {'updated': 0, 'created': 0}
     default_kerio_group = KerioGroup.objects.first()
+    if default_kerio_group is None:
+        default_kerio_group = KerioGroup.objects.create(
+            kerio_id=answer[0]['groupId'],
+            kerio_name=answer[0]['groupName']
+        )
     for user_in_kerio in answer:
         obj, create = IPAddress.objects.update_or_create(
             kerio_id=user_in_kerio['id'],
