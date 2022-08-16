@@ -46,12 +46,10 @@ class Profile(LoginRequiredMixin, View):
             current_ip = self.request.META.get('REMOTE_ADDR')
         instance = self.get_queryset()
         form = IPAddressForm(instance=instance)
-        logs = ActionLoggerService(self.request.user)
         context = dict(
             form=form,
             object=instance,
             current_ip=current_ip,
-            logs=logs.get_page(0),
         )
         if self.request.user.is_staff:
             context.update({
@@ -96,10 +94,9 @@ def sync_db(request):
 
 def get_more_logs(request):
     action = ActionLoggerService(request.user)
-    # page_num = request.session.get("page_num")
     if not (page_num := request.session.get("log_page_num")):
-        request.session["log_page_num"] = 2
-        page_num = 1
+        request.session["log_page_num"] = 1
+        page_num = 0
     logs = action.get_page(page_num)
     if logs:
         request.session["log_page_num"] += 1
