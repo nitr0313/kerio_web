@@ -34,9 +34,6 @@ def status(request, partial=False):
         else:
             del request.session['status_task_id']
     status_task = AsyncResult(task_id)
-    # if status_task.status == "SUCCESS":
-    #     del request.session['status_task_id']
-    #     redis_instance.flushdb()
     context = {'statuses': model_statuses.values(),
                'status_tasks': status_task.status}
     if partial:
