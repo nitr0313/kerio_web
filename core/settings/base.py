@@ -76,7 +76,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 SECRET_KEY = env.str('SECRET_KEY')
 
 LANGUAGE_CODE = 'ru-RU'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
