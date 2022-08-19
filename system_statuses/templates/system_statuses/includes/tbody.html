@@ -1,0 +1,8 @@
+{% for stat in statuses %}
+    <tr class="table-{% if stat.status %}success{% else %}danger{% endif %}">
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ stat.title }} </td>
+        <td>{{ stat.address }}</td>
+        <td>{{ stat.result }}</td>
+    </tr>
+{% endfor %}
