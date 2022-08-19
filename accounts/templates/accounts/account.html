@@ -16,7 +16,7 @@
             {% endif %} !
             </div>
             <div class="" style="text-align: center; font-weight: bold; font-size: x-large">
-                {% trans 'Your current IP' %}: <span class="text-bg-success"> {{ current_ip }}</span>
+                {% trans 'Your current IP' %}: <span id="current_ip" name="current_ip" class="text-bg-success" onclick="copyFromCurrentIP()">{{ current_ip }}</span>
             </div>
             <div class="mt-5" style="text-align: -webkit-center;">
                 <form method="post" style="width: 20rem">
